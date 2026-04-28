@@ -529,6 +529,8 @@
     let holdShadowColor = "";
     let holdPieceIndex = -1;
     let isPaused = false;
+    let isResolvingLock = false;
+    const lineClearDelay = 180;
 
     // CRT drawing effect with reduced blur and without per-pixel noise
     function drawWithCRTEffect(ctx, callback) {
@@ -564,6 +566,75 @@
       canHold = true;
       drawPreview();
       drawHold();
+    }
+
+    function getCompletedRows() {
+      const completedRows = [];
+      for (let y = rows - 1; y >= 0; y--) {
+        if (board[y].every((cell) => cell !== 0)) {
+          completedRows.push(y);
+        }
+      }
+      return completedRows;
+    }
+
+    function spawnNextPiece() {
+      createPiece();
+
+      if (collide()) {  // If a new piece collides immediately -> Game Over
+        isResolvingLock = true;
+        playSound("gameover");
+
+        // Save high score if the current score is greater
+        if (score > highScore) {
+          highScore = score;
+          saveHighScore(highScore);
+        }
+
+        // Load and update high score display
+        highScore = loadHighScore();
+        updateHighScoreDisplay(highScore);
+
+        const gameOverEffect = () => {
+          let row = rows - 1;
+          const fillInterval = setInterval(() => {
+            if (row < 0) {
+              clearInterval(fillInterval);
+              setTimeout(() => {
+                // Reset Game Logic
+                board.forEach((row) => row.fill(0));
+                score = 0;
+                level = 1;
+                linesCleared = 0;
+                holdPiece = null;
+                holdColor = "";
+                holdShadowColor = "";
+                holdPieceIndex = -1;
+                scoreElement.textContent = `SCORE:0`;
+                levelElement.textContent = `LEVEL:1`;
+                currentPiece = null;
+                isResolvingLock = false;
+
+                // Clear boardCache to reset visuals
+                redrawBoardCache();
+
+                // Restart Game
+                drawHold();
+                createPiece();
+                playStartupSound();
+              }, 500);
+              return;
+            }
+
+            for (let x = 0; x < cols; x++) {
+              board[row][x] = colors[Math.floor(Math.random() * colors.length)];
+            }
+            row--;
+          }, 30);
+        };
+
+        gameOverEffect();
+      }
     }
 
     function drawPiece(ctx, piece, color, canvas) {
@@ -707,6 +778,7 @@
     }
 
     function rotate() {
+      if (!currentPiece || isResolvingLock) return;
       playSound("rotate");
       const rotated = currentPiece[0].map((_, i) =>
         currentPiece.map((row) => row[i]).reverse()
@@ -758,15 +830,14 @@
     }
 
 
-    function clearLines() {
-        let lines = 0;
-        for (let y = rows - 1; y >= 0; y--) {
-            if (board[y].every(cell => cell !== 0)) {  // Check if the row is full
-                board.splice(y, 1);  // Remove full row
-                board.unshift(Array(cols).fill(0));  // Add a new empty row on top
-                lines++;
-                y++;  // Re-check the same row index since everything moved down
-            }
+    function clearLines(completedRows = getCompletedRows()) {
+        const rowsToClear = new Set(completedRows);
+        const lines = rowsToClear.size;
+
+        if (lines > 0) {
+            const remainingRows = board.filter((_, rowIndex) => !rowsToClear.has(rowIndex));
+            const emptyRows = Array.from({ length: lines }, () => Array(cols).fill(0));
+            board.splice(0, board.length, ...emptyRows, ...remainingRows);
         }
 
         if (lines > 0) {
@@ -782,7 +853,6 @@
             level = Math.floor(linesCleared / 10) + 1;
             levelElement.textContent = `LEVEL:${level}`;
 
-            
             redrawBoardCache();
         }
     }
@@ -889,10 +959,12 @@
         if (!isPaused) { // Only update if NOT paused
             const deltaTime = time - lastTime;
             lastTime = time;
-            dropCounter += deltaTime;
-            dropInterval = Math.max(50, 1000 - (level - 1) * 100);
-            if (dropCounter > dropInterval) {
-                drop();
+            if (!isResolvingLock && currentPiece) {
+                dropCounter += deltaTime;
+                dropInterval = Math.max(50, 1000 - (level - 1) * 100);
+                if (dropCounter > dropInterval) {
+                    drop();
+                }
             }
         }
 
@@ -923,62 +995,27 @@
 
 
     function drop() {
+        if (!currentPiece || isResolvingLock) {
+            dropCounter = 0;
+            return;
+        }
+
         currentPiecePos.y++;
         if (collide()) {
             currentPiecePos.y--;
             merge();
-            clearLines();
-            createPiece();
+            const completedRows = getCompletedRows();
 
-            if (collide()) {  // If a new piece collides immediately -> Game Over
-                playSound("gameover");
-
-                // Save high score if the current score is greater
-                if (score > highScore) {
-                    highScore = score;
-                    saveHighScore(highScore);
-                }
-
-                // Load and update high score display
-                highScore = loadHighScore();
-                updateHighScoreDisplay(highScore);
-
-                const gameOverEffect = () => {
-                    let row = rows - 1;
-                    const fillInterval = setInterval(() => {
-                        if (row < 0) {
-                            clearInterval(fillInterval);
-                            setTimeout(() => {
-                                // Reset Game Logic
-                                board.forEach((row) => row.fill(0));
-                                score = 0;
-                                level = 1;
-                                linesCleared = 0;
-                                holdPiece = null;
-                                holdColor = "";
-                                holdShadowColor = "";
-                                holdPieceIndex = -1;
-                                scoreElement.textContent = `SCORE:0`;
-                                levelElement.textContent = `LEVEL:1`;
-
-                                // Clear boardCache to reset visuals
-                                redrawBoardCache();
-
-                                // Restart Game
-                                drawHold();
-                                playStartupSound();
-                            }, 500);
-                            return;
-                        }
-
-                        for (let x = 0; x < cols; x++) {
-                            board[row][x] = colors[Math.floor(Math.random() * colors.length)];
-                        }
-                        row--;
-                    }, 30);
-                };
-
-                gameOverEffect();
+            if (completedRows.length > 0) {
+                isResolvingLock = true;
+                currentPiece = null;
+                setTimeout(() => {
+                    clearLines(completedRows);
+                    isResolvingLock = false;
+                    spawnNextPiece();
+                }, lineClearDelay);
+            } else {
+                spawnNextPiece();
             }
         }
         dropCounter = 0;
@@ -1036,6 +1073,7 @@
     const keyTimers = {};
 
     function moveLeft() {
+      if (!currentPiece || isResolvingLock) return;
       currentPiecePos.x--;
       if (collide()) {
         currentPiecePos.x++;
@@ -1045,6 +1083,7 @@
     }
 
     function moveRight() {
+      if (!currentPiece || isResolvingLock) return;
       currentPiecePos.x++;
       if (collide()) {
         currentPiecePos.x--;
@@ -1058,7 +1097,7 @@
     }
 
     document.addEventListener("keydown", (event) => {
-      if (!currentPiece) return;
+      if (!currentPiece && event.key.toLowerCase() !== "p") return;
       if (isPaused && event.key.toLowerCase() !== "p") return; // Keeping pause as P to give more of that vintage feel of key layout, feel free to change it to escape (KeyCode 27) if any of you want to! :D
       switch (event.key) {
         case "p":
@@ -1099,6 +1138,7 @@
           rotate();
           break;
         case " ":
+          if (event.repeat || !currentPiece || isResolvingLock) break;
           while (!collide()) {
             currentPiecePos.y++;
           }
@@ -1163,6 +1203,10 @@
     canvas.addEventListener(
       "touchend",
       function (e) {
+        if (!currentPiece || isResolvingLock) {
+          e.preventDefault();
+          return;
+        }
         const touchEndX = e.changedTouches[0].clientX;
         const touchEndY = e.changedTouches[0].clientY;
         const currentTime = new Date().getTime();
