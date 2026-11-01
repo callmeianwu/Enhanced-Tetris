@@ -331,9 +331,9 @@
 
   <div id="controls">
     <div class="control-title">Controls</div>
-    ← → : Move<br />
-    ↑ : Rotate<br />
-    ↓ : Drop<br />
+    ←/A →/D : Move<br />
+    ↑/W : Rotate<br />
+    ↓/S : Drop<br />
     SPACE : Hard Drop<br />
     SHIFT : Hold<br />
     P : Pause/Resume
@@ -1105,36 +1105,44 @@
           togglePause();
           break;
         case "ArrowLeft":
-          if (!keyTimers["ArrowLeft"]) {
+        case "a":
+        case "A":
+          if (!keyTimers["moveLeft"]) {
             moveLeft();
-            keyTimers["ArrowLeft"] = setTimeout(() => {
-              keyTimers["ArrowLeft"] = setInterval(() => {
+            keyTimers["moveLeft"] = setTimeout(() => {
+              keyTimers["moveLeft"] = setInterval(() => {
                 moveLeft();
               }, keyRepeatInterval);
             }, keyRepeatDelay);
           }
           break;
         case "ArrowRight":
-          if (!keyTimers["ArrowRight"]) {
+        case "d":
+        case "D":
+          if (!keyTimers["moveRight"]) {
             moveRight();
-            keyTimers["ArrowRight"] = setTimeout(() => {
-              keyTimers["ArrowRight"] = setInterval(() => {
+            keyTimers["moveRight"] = setTimeout(() => {
+              keyTimers["moveRight"] = setInterval(() => {
                 moveRight();
               }, keyRepeatInterval);
             }, keyRepeatDelay);
           }
           break;
         case "ArrowDown":
-          if (!keyTimers["ArrowDown"]) {
+        case "s":
+        case "S":
+          if (!keyTimers["moveDown"]) {
             moveDown();
-            keyTimers["ArrowDown"] = setTimeout(() => {
-              keyTimers["ArrowDown"] = setInterval(() => {
+            keyTimers["moveDown"] = setTimeout(() => {
+              keyTimers["moveDown"] = setInterval(() => {
                 moveDown();
               }, keyRepeatInterval);
             }, keyRepeatDelay);
           }
           break;
         case "ArrowUp":
+        case "w":
+        case "W":
           rotate();
           break;
         case " ":
@@ -1155,24 +1163,30 @@
     document.addEventListener("keyup", (event) => {
       switch (event.key) {
         case "ArrowLeft":
-          if (keyTimers["ArrowLeft"]) {
-            clearTimeout(keyTimers["ArrowLeft"]);
-            clearInterval(keyTimers["ArrowLeft"]);
-            keyTimers["ArrowLeft"] = null;
+        case "a":
+        case "A":
+          if (keyTimers["moveLeft"]) {
+            clearTimeout(keyTimers["moveLeft"]);
+            clearInterval(keyTimers["moveLeft"]);
+            keyTimers["moveLeft"] = null;
           }
           break;
         case "ArrowRight":
-          if (keyTimers["ArrowRight"]) {
-            clearTimeout(keyTimers["ArrowRight"]);
-            clearInterval(keyTimers["ArrowRight"]);
-            keyTimers["ArrowRight"] = null;
+        case "d":
+        case "D":
+          if (keyTimers["moveRight"]) {
+            clearTimeout(keyTimers["moveRight"]);
+            clearInterval(keyTimers["moveRight"]);
+            keyTimers["moveRight"] = null;
           }
           break;
         case "ArrowDown":
-          if (keyTimers["ArrowDown"]) {
-            clearTimeout(keyTimers["ArrowDown"]);
-            clearInterval(keyTimers["ArrowDown"]);
-            keyTimers["ArrowDown"] = null;
+        case "s":
+        case "S":
+          if (keyTimers["moveDown"]) {
+            clearTimeout(keyTimers["moveDown"]);
+            clearInterval(keyTimers["moveDown"]);
+            keyTimers["moveDown"] = null;
           }
           break;
       }
