@@ -1107,22 +1107,22 @@
         case "ArrowLeft":
         case "a":
         case "A":
-          if (!keyTimers["ArrowLeft"]) {
+          if (!keyTimers["moveLeft"]) {
             moveLeft();
-            keyTimers["ArrowLeft"] = setTimeout(() => {
-              keyTimers["ArrowLeft"] = setInterval(() => {
+            keyTimers["moveLeft"] = setTimeout(() => {
+              keyTimers["moveLeft"] = setInterval(() => {
                 moveLeft();
               }, keyRepeatInterval);
             }, keyRepeatDelay);
           }
           break;
         case "ArrowRight":
-          if (!keyTimers["ArrowRight"]) {
         case "d":
         case "D":
+          if (!keyTimers["moveRight"]) {
             moveRight();
-            keyTimers["ArrowRight"] = setTimeout(() => {
-              keyTimers["ArrowRight"] = setInterval(() => {
+            keyTimers["moveRight"] = setTimeout(() => {
+              keyTimers["moveRight"] = setInterval(() => {
                 moveRight();
               }, keyRepeatInterval);
             }, keyRepeatDelay);
@@ -1131,10 +1131,10 @@
         case "ArrowDown":
         case "s":
         case "S":
-          if (!keyTimers["ArrowDown"]) {
+          if (!keyTimers["moveDown"]) {
             moveDown();
-            keyTimers["ArrowDown"] = setTimeout(() => {
-              keyTimers["ArrowDown"] = setInterval(() => {
+            keyTimers["moveDown"] = setTimeout(() => {
+              keyTimers["moveDown"] = setInterval(() => {
                 moveDown();
               }, keyRepeatInterval);
             }, keyRepeatDelay);
@@ -1165,28 +1165,28 @@
         case "ArrowLeft":
         case "a":
         case "A":
-          if (keyTimers["ArrowLeft"]) {
-            clearTimeout(keyTimers["ArrowLeft"]);
-            clearInterval(keyTimers["ArrowLeft"]);
-            keyTimers["ArrowLeft"] = null;
+          if (keyTimers["moveLeft"]) {
+            clearTimeout(keyTimers["moveLeft"]);
+            clearInterval(keyTimers["moveLeft"]);
+            keyTimers["moveLeft"] = null;
           }
           break;
         case "ArrowRight":
         case "d":
         case "D":
-          if (keyTimers["ArrowRight"]) {
-            clearTimeout(keyTimers["ArrowRight"]);
-            clearInterval(keyTimers["ArrowRight"]);
-            keyTimers["ArrowRight"] = null;
+          if (keyTimers["moveRight"]) {
+            clearTimeout(keyTimers["moveRight"]);
+            clearInterval(keyTimers["moveRight"]);
+            keyTimers["moveRight"] = null;
           }
           break;
         case "ArrowDown":
         case "s":
         case "S":
-          if (keyTimers["ArrowDown"]) {
-            clearTimeout(keyTimers["ArrowDown"]);
-            clearInterval(keyTimers["ArrowDown"]);
-            keyTimers["ArrowDown"] = null;
+          if (keyTimers["moveDown"]) {
+            clearTimeout(keyTimers["moveDown"]);
+            clearInterval(keyTimers["moveDown"]);
+            keyTimers["moveDown"] = null;
           }
           break;
       }
