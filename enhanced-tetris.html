@@ -331,9 +331,9 @@
 
   <div id="controls">
     <div class="control-title">Controls</div>
-    ← → : Move<br />
-    ↑ : Rotate<br />
-    ↓ : Drop<br />
+    ←/A →/D : Move<br />
+    ↑/W : Rotate<br />
+    ↓/S : Drop<br />
     SPACE : Hard Drop<br />
     SHIFT : Hold<br />
     P : Pause/Resume
@@ -1105,6 +1105,8 @@
           togglePause();
           break;
         case "ArrowLeft":
+        case "a":
+        case "A":
           if (!keyTimers["ArrowLeft"]) {
             moveLeft();
             keyTimers["ArrowLeft"] = setTimeout(() => {
@@ -1116,6 +1118,8 @@
           break;
         case "ArrowRight":
           if (!keyTimers["ArrowRight"]) {
+        case "d":
+        case "D":
             moveRight();
             keyTimers["ArrowRight"] = setTimeout(() => {
               keyTimers["ArrowRight"] = setInterval(() => {
@@ -1125,6 +1129,8 @@
           }
           break;
         case "ArrowDown":
+        case "s":
+        case "S":
           if (!keyTimers["ArrowDown"]) {
             moveDown();
             keyTimers["ArrowDown"] = setTimeout(() => {
@@ -1135,6 +1141,8 @@
           }
           break;
         case "ArrowUp":
+        case "w":
+        case "W":
           rotate();
           break;
         case " ":
@@ -1155,6 +1163,8 @@
     document.addEventListener("keyup", (event) => {
       switch (event.key) {
         case "ArrowLeft":
+        case "a":
+        case "A":
           if (keyTimers["ArrowLeft"]) {
             clearTimeout(keyTimers["ArrowLeft"]);
             clearInterval(keyTimers["ArrowLeft"]);
@@ -1162,6 +1172,8 @@
           }
           break;
         case "ArrowRight":
+        case "d":
+        case "D":
           if (keyTimers["ArrowRight"]) {
             clearTimeout(keyTimers["ArrowRight"]);
             clearInterval(keyTimers["ArrowRight"]);
@@ -1169,6 +1181,8 @@
           }
           break;
         case "ArrowDown":
+        case "s":
+        case "S":
           if (keyTimers["ArrowDown"]) {
             clearTimeout(keyTimers["ArrowDown"]);
             clearInterval(keyTimers["ArrowDown"]);

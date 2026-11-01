@@ -102,9 +102,9 @@
 
     <div id="controls">
         Controls:<br>
-        ← → : Move<br>
-        ↑ : Rotate<br>
-        ↓ : Drop<br>
+        ←/A →/D : Move<br>
+        ↑/W : Rotate<br>
+        ↓/S : Drop<br>
         Space : Hard Drop<br>
         Shift : Hold
     </div>
@@ -418,18 +418,22 @@
             if (!currentPiece) return;
 
             switch (event.keyCode) {
-                case 37: // Left
+                case 37: // Left Arrow
+                case 65: // a or A
                     currentPiecePos.x--;
                     if (collide()) currentPiecePos.x++;
                     break;
-                case 39: // Right
+                case 39: // Right Arrow
+                case 68: // d or D
                     currentPiecePos.x++;
                     if (collide()) currentPiecePos.x--;
                     break;
-                case 40: // Down
+                case 40: // Down Arrow
+                case 83: // s or S
                     drop();
                     break;
-                case 38: // Up (rotate)
+                case 38: // Up Arrow (rotate)
+                case 87: // w or W
                     rotate();
                     break;
                 case 32: // Space (hard drop)
